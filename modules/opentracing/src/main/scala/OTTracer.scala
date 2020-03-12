@@ -6,7 +6,7 @@ package natchez
 package opentracing
 
 import cats.Applicative
-import cats.effect.{Bracket, ExitCase, Resource, Sync}
+import cats.effect.{ExitCase, Resource, Sync}
 import cats.implicits._
 import cats.effect.implicits._
 import io.opentracing.SpanContext
