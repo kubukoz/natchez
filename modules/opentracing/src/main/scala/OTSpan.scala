@@ -17,7 +17,7 @@ private[opentracing] final case class OTSpan[F[_] : Sync](tracer: ot.Tracer,
                                                           span: ot.Span) extends Span[F] {
   import TraceValue._
 
-  def kernel: F[Kernel] =
+  val kernel: F[Kernel] =
     Sync[F].delay {
       val m = new java.util.HashMap[String, String]
       tracer.inject(
@@ -36,9 +36,9 @@ private[opentracing] final case class OTSpan[F[_] : Sync](tracer: ot.Tracer,
     }
 
   def span(name: String): Resource[F, Span[F]] =
-    makeSpan(tracer)(Sync[F].delay {
-      val newSpan: ot.Span = tracer.buildSpan(name).asChildOf(span).start()
-      tracer.scopeManager().activate(newSpan)
-      newSpan
-    })
+    Resource.suspend {
+      Sync[F].delay(span.context()).map { ctx =>
+        makeSpan(name, tracer, ctx.some)
+      }
+    }
 }
